@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { uploadImage, updateImage } from "../services/api";
 
-function UploadForm({ refresh, selectedImage, isEditing, setIsEditing }) {
+function UploadForm({ refresh, selectedImage, isEditing }) {
+
   const [imageFile, setImageFile] = useState(null);
   const [caption, setCaption] = useState("");
   const [preview, setPreview] = useState(null);
@@ -11,7 +12,7 @@ function UploadForm({ refresh, selectedImage, isEditing, setIsEditing }) {
       setCaption(selectedImage.caption);
       setPreview(selectedImage.image);
     }
-  }, [isEditing]);
+  }, [selectedImage]);
 
   const handleFileChange = (file) => {
     setImageFile(file);
@@ -19,6 +20,7 @@ function UploadForm({ refresh, selectedImage, isEditing, setIsEditing }) {
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     const formData = new FormData();
@@ -30,7 +32,6 @@ function UploadForm({ refresh, selectedImage, isEditing, setIsEditing }) {
 
     if (isEditing) {
       await updateImage(selectedImage._id, formData);
-      setIsEditing(false);
     } else {
       await uploadImage(formData);
     }
@@ -39,17 +40,22 @@ function UploadForm({ refresh, selectedImage, isEditing, setIsEditing }) {
     setImageFile(null);
     setPreview(null);
 
-    refresh();
+    if(refresh){
+      refresh();
+    }
+
   };
 
   return (
     <form onSubmit={handleSubmit} className="upload-card">
+
       <label className="upload-dropzone">
+
         {preview ? (
           <img src={preview} alt="preview" className="preview-img" />
         ) : (
           <div className="upload-placeholder">
-            <p> Click to upload image</p>
+            <p>Click to upload image</p>
           </div>
         )}
 
@@ -58,6 +64,7 @@ function UploadForm({ refresh, selectedImage, isEditing, setIsEditing }) {
           hidden
           onChange={(e) => handleFileChange(e.target.files[0])}
         />
+
       </label>
 
       <input
@@ -71,6 +78,7 @@ function UploadForm({ refresh, selectedImage, isEditing, setIsEditing }) {
       <button className="upload-btn" type="submit">
         {isEditing ? "Update Image" : "Upload Image"}
       </button>
+
     </form>
   );
 }

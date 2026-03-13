@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getImageById, deleteImage } from "../services/api";
-import "../styles/main.css"
 
 function ImageDetails() {
 
   const { id } = useParams();
-
   const [image, setImage] = useState(null);
 
   const fetchImage = async () => {

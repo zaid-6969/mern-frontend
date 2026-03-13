@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { getImages, deleteImage } from "../services/api";
-import UploadForm from "../components/UploadForm";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
+
   const [images, setImages] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+
+  /* Pagination */
 
   const [currentPage, setCurrentPage] = useState(1);
   const imagesPerPage = 4;
@@ -28,114 +29,111 @@ function Home() {
     }
   };
 
-  const navigate = useNavigate();
   const fetchImages = async () => {
     const res = await getImages();
-
     const sorted = res.data.reverse();
-
     setImages(sorted);
-
-    if (sorted.length > 0) {
-      setSelectedImage(sorted[0]);
-    }
   };
 
   useEffect(() => {
     fetchImages();
   }, []);
 
-  const handleDelete = async () => {
-    if (!selectedImage) return;
-
-    await deleteImage(selectedImage._id);
-
+  const handleDelete = async (id) => {
+    await deleteImage(id);
     fetchImages();
-  };
-
-  const handleEdit = () => {
-    setIsEditing(true);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
   };
 
   return (
     <div className="gallery-container">
 
-      <UploadForm
-        refresh={fetchImages}
-        selectedImage={selectedImage}
-        isEditing={isEditing}
-        setIsEditing={setIsEditing}
-      />
-      {/* 
-      <div className="preview-box">
-        {selectedImage && (
-          <>
-            <img src={selectedImage.image} alt={selectedImage.caption} />
+      <div className="table-header">
+        <h2>Image List</h2>
 
-            <p>{selectedImage.caption}</p>
-
-            <div className="preview-buttons">
-              <button onClick={handleEdit}>Edit</button>
-
-              <button onClick={handleDelete}>Delete</button>
-            </div>
-          </>
-        )}
-      </div> */}
-
-      {/* this  thambnail has to move like a components  */}
-
-      <div className="thumbnail-grid">
-        {currentImages.map((img) => (
-          <div
-            key={img._id}
-            className="image-card"
-            onClick={() => navigate(`/image/${img._id}`)}
-          >
-            <img src={img.image} alt={img.caption} />
-
-            <p>{img.caption}</p>
-
-            <div className="image-card-buttons">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedImage(img);
-                  handleEdit();
-                }}
-              >
-                Edit
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedImage(img);
-                  handleDelete();
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+        <button
+          className="create-btn"
+          onClick={() => navigate("/create")}
+        >
+          Create +
+        </button>
       </div>
+
+      <table className="image-table">
+
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Caption</th>
+            <th style={{display:'flex',justifyContent:'center'}}>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {currentImages.map((img) => (
+
+            <tr key={img._id}>
+
+              <td>
+                <img
+                  src={img.image}
+                  alt={img.caption}
+                  className="table-image"
+                />
+              </td>
+
+              <td>{img.caption}</td>
+
+              <td className="table-actions">
+
+                <button
+                  onClick={() => navigate(`/image/${img._id}`)}
+                >
+                  Preview
+                </button>
+
+                <button
+                  onClick={() => navigate(`/edit/${img._id}`)}
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => handleDelete(img._id)}
+                >
+                  Delete
+                </button>
+
+              </td>
+
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </table>
+
       <div className="pagination">
-        <button onClick={prevPage} disabled={currentPage === 1}>
+
+        <button
+          onClick={prevPage}
+          disabled={currentPage === 1}
+        >
           Previous
         </button>
 
         <span>Page {currentPage}</span>
 
-        <button onClick={nextPage} disabled={indexOfLastImage >= images.length}>
+        <button
+          onClick={nextPage}
+          disabled={indexOfLastImage >= images.length}
+        >
           Next
         </button>
+
       </div>
+
     </div>
   );
 }
