@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { uploadImage, updateImage } from "../services/api";
 
 function UploadForm({ refresh, selectedImage, isEditing }) {
-
   const [imageFile, setImageFile] = useState(null);
   const [caption, setCaption] = useState("");
   const [preview, setPreview] = useState(null);
@@ -20,8 +19,19 @@ function UploadForm({ refresh, selectedImage, isEditing }) {
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
+
+    if (isEditing) {
+      if (!caption && !imageFile) {
+        console.log("Please provide at least a new image or caption");
+        return;
+      }
+    } else {
+      if (!caption || !imageFile) {
+        console.log("Both image and caption must be filled");
+        return;
+      }
+    }
 
     const formData = new FormData();
     formData.append("caption", caption);
@@ -40,17 +50,14 @@ function UploadForm({ refresh, selectedImage, isEditing }) {
     setImageFile(null);
     setPreview(null);
 
-    if(refresh){
+    if (refresh) {
       refresh();
     }
-
   };
 
   return (
     <form onSubmit={handleSubmit} className="upload-card">
-
       <label className="upload-dropzone">
-
         {preview ? (
           <img src={preview} alt="preview" className="preview-img" />
         ) : (
@@ -64,7 +71,6 @@ function UploadForm({ refresh, selectedImage, isEditing }) {
           hidden
           onChange={(e) => handleFileChange(e.target.files[0])}
         />
-
       </label>
 
       <input
@@ -78,7 +84,6 @@ function UploadForm({ refresh, selectedImage, isEditing }) {
       <button className="upload-btn" type="submit">
         {isEditing ? "Update Image" : "Upload Image"}
       </button>
-
     </form>
   );
 }
